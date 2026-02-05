@@ -122,3 +122,74 @@ test('create note with non existing tag_id fails with 422', function () {
         ->assertJsonValidationErrors(['tag_id']);
     $this->assertDatabaseMissing('notes', ['text' => 'Ma note']);
 });
+
+test('authenticated user with no notes gets empty list and message', function () {
+    $user = User::factory()->create();
+
+    $loginResponse = $this->postJson('/api/auth/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+    $loginResponse->assertStatus(200);
+    $token = $loginResponse->json('token');
+
+    $response = $this->withToken($token)->getJson('/api/notes');
+
+    $response->assertStatus(200)
+        ->assertJsonPath('data', [])
+        ->assertJsonPath('message', 'Aucune note.');
+});
+
+test('update non existent note returns 404', function () {
+    $user = User::factory()->create();
+
+    $loginResponse = $this->postJson('/api/auth/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+    $loginResponse->assertStatus(200);
+    $token = $loginResponse->json('token');
+
+    $response = $this->withToken($token)->putJson('/api/notes/99999', [
+        'text' => 'Texte',
+    ]);
+
+    $response->assertStatus(404)
+        ->assertJson(['message' => 'Note not found.']);
+});
+
+test('delete non existent note returns 404', function () {
+    $user = User::factory()->create();
+
+    $loginResponse = $this->postJson('/api/auth/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+    $loginResponse->assertStatus(200);
+    $token = $loginResponse->json('token');
+
+    $response = $this->withToken($token)->deleteJson('/api/notes/99999');
+
+    $response->assertStatus(404)
+        ->assertJson(['message' => 'Note not found.']);
+});
+
+test('update note with non existing tag_id returns 422', function () {
+    $user = User::factory()->create();
+    $note = Note::factory()->for($user)->create(['text' => 'Texte']);
+
+    $loginResponse = $this->postJson('/api/auth/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+    $loginResponse->assertStatus(200);
+    $token = $loginResponse->json('token');
+
+    $response = $this->withToken($token)->putJson('/api/notes/'.$note->id, [
+        'text' => 'Texte mis à jour',
+        'tag_id' => 99999,
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['tag_id']);
+});

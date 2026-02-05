@@ -76,3 +76,37 @@ test('unauthenticated request to protected endpoint returns 401', function () {
 
     $response->assertStatus(401);
 });
+
+test('login with missing email returns 422', function () {
+    $response = $this->postJson('/api/auth/login', [
+        'password' => 'password',
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['email']);
+});
+
+test('login with invalid email format returns 422', function () {
+    $response = $this->postJson('/api/auth/login', [
+        'email' => 'not-an-email',
+        'password' => 'password',
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['email']);
+});
+
+test('login with missing password returns 422', function () {
+    $response = $this->postJson('/api/auth/login', [
+        'email' => 'user@example.com',
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['password']);
+});
+
+test('logout without token returns 401', function () {
+    $response = $this->postJson('/api/auth/logout');
+
+    $response->assertStatus(401);
+});
