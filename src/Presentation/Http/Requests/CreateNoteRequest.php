@@ -19,7 +19,7 @@ class CreateNoteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'text' => ['nullable', 'string'],
+            'text' => ['nullable', 'string', 'max:65535'],
             'tag_id' => ['required', 'integer', 'exists:tags,id'],
         ];
     }
@@ -34,6 +34,7 @@ class CreateNoteRequest extends FormRequest
         return [
             'tag_id.required' => 'Un tag doit être associé à la note.',
             'tag_id.exists' => 'Le tag associé à la création de la note n\'existe pas.',
+            'text.max' => 'Le texte de la note ne peut pas dépasser 65535 caractères.',
         ];
     }
 }

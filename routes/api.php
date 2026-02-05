@@ -6,7 +6,7 @@ use ArchitectureCible\Presentation\Http\Controllers\Api\TagController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
-    Route::post('login', [AuthController::class, 'login']);
+    Route::post('login', [AuthController::class, 'login'])->middleware('throttle:5,1');
     Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
     Route::get('user', [AuthController::class, 'user'])->middleware('auth:sanctum');
 });
