@@ -1,9 +1,9 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 import type { User } from '@/types/user';
 import { login as apiLogin, register as apiRegister } from '@/api/client';
 
-const TOKEN_KEY = 'renote_token';
+const AUTH_STORAGE_KEY = 'auth-storage';
 
 export interface AuthState {
   user: User | null;
@@ -28,9 +28,6 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         try {
           const { user, token } = await apiLogin({ email, password });
-          if (typeof localStorage !== 'undefined') {
-            localStorage.setItem(TOKEN_KEY, token);
-          }
           set({ user, token, isLoading: false, error: null });
         } catch (err) {
           const message = err instanceof Error ? err.message : 'Login failed';
@@ -42,9 +39,6 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         try {
           const { user, token } = await apiRegister({ name, email, password });
-          if (typeof localStorage !== 'undefined') {
-            localStorage.setItem(TOKEN_KEY, token);
-          }
           set({ user, token, isLoading: false, error: null });
         } catch (err) {
           const message = err instanceof Error ? err.message : 'Register failed';
@@ -53,22 +47,28 @@ export const useAuthStore = create<AuthState>()(
         }
       },
       logout: () => {
-        if (typeof localStorage !== 'undefined') {
-          localStorage.removeItem(TOKEN_KEY);
-        }
         set({ user: null, token: null, error: null });
       },
       setError: (error) => set({ error }),
       clearError: () => set({ error: null }),
     }),
     {
-      name: 'auth-storage',
+      name: AUTH_STORAGE_KEY,
+      storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({ token: state.token, user: state.user }),
     }
   )
 );
 
+/** Lit le token depuis la persistance (sessionStorage). */
 export function getStoredToken(): string | null {
-  if (typeof localStorage === 'undefined') return null;
-  return localStorage.getItem(TOKEN_KEY);
+  if (typeof sessionStorage === 'undefined') return null;
+  try {
+    const raw = sessionStorage.getItem(AUTH_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { state?: { token?: string | null } };
+    return parsed.state?.token ?? null;
+  } catch {
+    return null;
+  }
 }

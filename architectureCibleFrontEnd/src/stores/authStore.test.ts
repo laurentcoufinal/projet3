@@ -9,20 +9,20 @@ const mockLoginResponse: { user: User; token: string } = {
 
 describe('authStore', () => {
   const originalFetch = globalThis.fetch;
-  let localStorageMock: Record<string, string>;
+  let sessionStorageMock: Record<string, string>;
 
   beforeEach(() => {
-    localStorageMock = {};
-    vi.stubGlobal('localStorage', {
-      getItem: (key: string) => localStorageMock[key] ?? null,
+    sessionStorageMock = {};
+    vi.stubGlobal('sessionStorage', {
+      getItem: (key: string) => sessionStorageMock[key] ?? null,
       setItem: (key: string, value: string) => {
-        localStorageMock[key] = value;
+        sessionStorageMock[key] = value;
       },
       removeItem: (key: string) => {
-        delete localStorageMock[key];
+        delete sessionStorageMock[key];
       },
       clear: () => {
-        Object.keys(localStorageMock).forEach((k) => delete localStorageMock[k]);
+        Object.keys(sessionStorageMock).forEach((k) => delete sessionStorageMock[k]);
       },
       length: 0,
       key: () => null,
@@ -39,7 +39,7 @@ describe('authStore', () => {
     vi.stubGlobal('fetch', originalFetch);
   });
 
-  it('login success met à jour user et token et stocke le token', async () => {
+  it('login success met à jour user et token (persist en sessionStorage)', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({
@@ -51,7 +51,6 @@ describe('authStore', () => {
     expect(useAuthStore.getState().user).toEqual(mockLoginResponse.user);
     expect(useAuthStore.getState().token).toBe(mockLoginResponse.token);
     expect(useAuthStore.getState().error).toBeNull();
-    expect(localStorageMock['renote_token']).toBe('fake-token-123');
   });
 
   it('login failure met à jour error et lance une erreur', async () => {
@@ -70,16 +69,14 @@ describe('authStore', () => {
     expect(useAuthStore.getState().token).toBeNull();
   });
 
-  it('logout efface user, token et le localStorage', () => {
+  it('logout efface user et token', () => {
     useAuthStore.setState({
       user: mockLoginResponse.user,
       token: mockLoginResponse.token,
     });
-    localStorageMock['renote_token'] = 'fake-token-123';
     useAuthStore.getState().logout();
     expect(useAuthStore.getState().user).toBeNull();
     expect(useAuthStore.getState().token).toBeNull();
-    expect(localStorageMock['renote_token']).toBeUndefined();
   });
 
   it('setError met à jour error', () => {
@@ -93,7 +90,7 @@ describe('authStore', () => {
     expect(useAuthStore.getState().error).toBeNull();
   });
 
-  it('register success met à jour user et token et stocke le token', async () => {
+  it('register success met à jour user et token (persist en sessionStorage)', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({
@@ -105,7 +102,6 @@ describe('authStore', () => {
     expect(useAuthStore.getState().user).toEqual(mockLoginResponse.user);
     expect(useAuthStore.getState().token).toBe(mockLoginResponse.token);
     expect(useAuthStore.getState().error).toBeNull();
-    expect(localStorageMock['renote_token']).toBe('fake-token-123');
   });
 
   it('register failure met à jour error et lance une erreur', async () => {
@@ -127,8 +123,12 @@ describe('authStore', () => {
 
 describe('getStoredToken', () => {
   beforeEach(() => {
-    vi.stubGlobal('localStorage', {
-      getItem: vi.fn().mockReturnValue('stored-token'),
+    vi.stubGlobal('sessionStorage', {
+      getItem: vi.fn((key: string) =>
+        key === 'auth-storage'
+          ? JSON.stringify({ state: { token: 'stored-token', user: null }, version: 0 })
+          : null
+      ),
       setItem: vi.fn(),
       removeItem: vi.fn(),
       clear: vi.fn(),
