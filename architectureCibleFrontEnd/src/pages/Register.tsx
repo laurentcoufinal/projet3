@@ -6,6 +6,7 @@ export function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const navigate = useNavigate();
   const { register, isLoading, error, clearError } = useAuthStore();
 
@@ -13,7 +14,7 @@ export function Register() {
     e.preventDefault();
     clearError();
     try {
-      await register(name, email, password);
+      await register(name, email, password, passwordConfirmation);
       navigate('/dashboard', { replace: true });
     } catch {
       // Error is set in store
@@ -63,6 +64,21 @@ export function Register() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            minLength={8}
+            autoComplete="new-password"
+            disabled={isLoading}
+            style={{ display: 'block', width: '100%', padding: 8, marginTop: 4 }}
+          />
+        </div>
+        <div style={{ marginBottom: 12 }}>
+          <label htmlFor="register-password-confirmation">Confirmer le mot de passe</label>
+          <input
+            id="register-password-confirmation"
+            type="password"
+            value={passwordConfirmation}
+            onChange={(e) => setPasswordConfirmation(e.target.value)}
+            required
+            minLength={8}
             autoComplete="new-password"
             disabled={isLoading}
             style={{ display: 'block', width: '100%', padding: 8, marginTop: 4 }}

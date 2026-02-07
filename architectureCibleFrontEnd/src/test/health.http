@@ -1,0 +1,14 @@
+### Vérifier l'état du frontend (serveur Vite)
+### Réponse attendue : 200 + HTML de l'app
+GET http://localhost:5173/
+Accept: text/html
+
+###
+
+### Vérifier l'état de l'API backend
+### Sans token : 401 attendu (API joignable)
+### Avec token valide : 200 + liste des notes
+GET http://localhost:8000/api/notes
+Accept: application/json
+
+###

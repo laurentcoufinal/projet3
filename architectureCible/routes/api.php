@@ -5,6 +5,10 @@ use ArchitectureCible\Presentation\Http\Controllers\Api\NoteController;
 use ArchitectureCible\Presentation\Http\Controllers\Api\TagController;
 use Illuminate\Support\Facades\Route;
 
+// Routes attendues par le frontend (POST /api/register, POST /api/login)
+Route::post('register', [AuthController::class, 'register'])->middleware('throttle:5,1');
+Route::post('login', [AuthController::class, 'login'])->middleware('throttle:5,1');
+
 Route::prefix('auth')->group(function () {
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:5,1');
     Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');

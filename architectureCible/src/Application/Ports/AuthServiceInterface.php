@@ -14,6 +14,13 @@ interface AuthServiceInterface
     public function login(string $email, string $password): ?array;
 
     /**
+     * Register a new user. Returns token and user (same format as login for frontend compatibility).
+     *
+     * @return array{token: string, user: User}
+     */
+    public function register(string $name, string $email, string $password): array;
+
+    /**
      * Revoke current access token for the given user.
      */
     public function logout(User $user): void;

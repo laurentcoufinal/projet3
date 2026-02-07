@@ -110,3 +110,48 @@ test('logout without token returns 401', function () {
 
     $response->assertStatus(401);
 });
+
+// Routes attendues par le frontend : POST /api/login et POST /api/register
+test('POST /api/login works like POST /api/auth/login', function () {
+    $user = User::factory()->create();
+
+    $response = $this->postJson('/api/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+
+    $response->assertStatus(200)
+        ->assertJsonStructure(['token', 'user' => ['id', 'name', 'email']])
+        ->assertJsonPath('user.email', $user->email);
+    $this->assertNotEmpty($response->json('token'));
+});
+
+test('POST /api/register creates user and returns token and user', function () {
+    $response = $this->postJson('/api/register', [
+        'name' => 'New User',
+        'email' => 'new@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ]);
+
+    $response->assertStatus(201)
+        ->assertJsonStructure(['token', 'user' => ['id', 'name', 'email']])
+        ->assertJsonPath('user.name', 'New User')
+        ->assertJsonPath('user.email', 'new@example.com');
+    $this->assertNotEmpty($response->json('token'));
+    $this->assertDatabaseHas('users', ['email' => 'new@example.com']);
+});
+
+test('POST /api/register with duplicate email returns 422', function () {
+    User::factory()->create(['email' => 'existing@example.com']);
+
+    $response = $this->postJson('/api/register', [
+        'name' => 'Other',
+        'email' => 'existing@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['email']);
+});

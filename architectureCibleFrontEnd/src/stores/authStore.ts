@@ -11,7 +11,7 @@ export interface AuthState {
   error: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, passwordConfirmation: string) => Promise<void>;
   logout: () => void;
   setError: (error: string | null) => void;
   clearError: () => void;
@@ -35,10 +35,15 @@ export const useAuthStore = create<AuthState>()(
           throw err;
         }
       },
-      register: async (name: string, email: string, password: string) => {
+      register: async (name: string, email: string, password: string, passwordConfirmation: string) => {
         set({ isLoading: true, error: null });
         try {
-          const { user, token } = await apiRegister({ name, email, password });
+          const { user, token } = await apiRegister({
+            name,
+            email,
+            password,
+            password_confirmation: passwordConfirmation,
+          });
           set({ user, token, isLoading: false, error: null });
         } catch (err) {
           const message = err instanceof Error ? err.message : 'Register failed';

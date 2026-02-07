@@ -25,6 +25,23 @@ class SanctumAuthService implements AuthServiceInterface
         ];
     }
 
+    public function register(string $name, string $email, string $password): array
+    {
+        $user = User::create([
+            'name' => $name,
+            'email' => $email,
+            'password' => $password,
+            'email_verified_at' => now(),
+        ]);
+
+        $token = $user->createToken('api')->plainTextToken;
+
+        return [
+            'token' => $token,
+            'user' => $user,
+        ];
+    }
+
     public function logout(User $user): void
     {
         $user->currentAccessToken()?->delete();

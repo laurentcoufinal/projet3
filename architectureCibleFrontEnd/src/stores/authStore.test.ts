@@ -98,7 +98,7 @@ describe('authStore', () => {
         json: () => Promise.resolve(mockLoginResponse),
       })
     );
-    await useAuthStore.getState().register('New User', 'new@example.com', 'password');
+    await useAuthStore.getState().register('New User', 'new@example.com', 'password', 'password');
     expect(useAuthStore.getState().user).toEqual(mockLoginResponse.user);
     expect(useAuthStore.getState().token).toBe(mockLoginResponse.token);
     expect(useAuthStore.getState().error).toBeNull();
@@ -113,7 +113,7 @@ describe('authStore', () => {
       })
     );
     await expect(
-      useAuthStore.getState().register('User', 'taken@example.com', 'pass')
+      useAuthStore.getState().register('User', 'taken@example.com', 'pass', 'pass')
     ).rejects.toThrow();
     expect(useAuthStore.getState().error).toBe('Email already taken');
     expect(useAuthStore.getState().user).toBeNull();

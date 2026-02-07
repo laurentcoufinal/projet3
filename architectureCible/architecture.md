@@ -28,9 +28,12 @@ Il n'y a pas d'interface web : tout accès se fait par requêtes HTTP vers les r
 
 ### 3.1 Authentification
 
+Routes **attendues par le frontend** : `POST /api/register`, `POST /api/login` (réponse : `token` + `user`).
+
 | Fonction | Description | Fichier où c'est réalisé |
 |----------|-------------|---------------------------|
-| **Connexion (login)** | Email + mot de passe → token + user (JSON) ; 401 si invalide ; rate limit 5/min | `routes/api.php` (route `POST /api/auth/login`), `src/Presentation/Http/Controllers/Api/AuthController.php` → `login()`, `src/Presentation/Http/Requests/LoginRequest.php` (règles), `src/Application/Ports/AuthServiceInterface.php` → `login()`, `src/Infrastructure/Auth/SanctumAuthService.php` → `login()` |
+| **Inscription (register)** | name, email, password, password_confirmation → 201 + token + user ; 422 si email déjà pris | `routes/api.php` (`POST /api/register`), `AuthController::register()`, `RegisterRequest.php`, `AuthServiceInterface::register()`, `SanctumAuthService::register()` |
+| **Connexion (login)** | Email + mot de passe → token + user ; 401 si invalide ; rate limit 5/min. Exposé en `POST /api/login` et `POST /api/auth/login`. | `routes/api.php` (route `POST /api/auth/login`), `src/Presentation/Http/Controllers/Api/AuthController.php` → `login()`, `src/Presentation/Http/Requests/LoginRequest.php` (règles), `src/Application/Ports/AuthServiceInterface.php` → `login()`, `src/Infrastructure/Auth/SanctumAuthService.php` → `login()` |
 | **Déconnexion (logout)** | Invalidation du token courant | `routes/api.php` (route `POST /api/auth/logout`), `src/Presentation/Http/Controllers/Api/AuthController.php` → `logout()`, `src/Application/Ports/AuthServiceInterface.php` → `logout()`, `src/Infrastructure/Auth/SanctumAuthService.php` → `logout()` |
 | **Profil utilisateur (user)** | Retourne l’utilisateur connecté (JSON) ; 401 si non authentifié | `routes/api.php` (route `GET /api/auth/user`), `src/Presentation/Http/Controllers/Api/AuthController.php` → `user()`, `src/Application/Ports/AuthServiceInterface.php` → `user()`, `src/Infrastructure/Auth/SanctumAuthService.php` → `user()`, `src/Presentation/Http/Resources/UserResource.php` → `toArray()` |
 

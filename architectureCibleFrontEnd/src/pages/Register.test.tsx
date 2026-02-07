@@ -35,12 +35,13 @@ describe('Register', () => {
     });
   });
 
-  it('affiche le formulaire d\'inscription avec nom, email et mot de passe', () => {
+  it('affiche le formulaire d\'inscription avec nom, email, mot de passe et confirmation', () => {
     renderRegister();
     expect(screen.getByRole('heading', { name: /inscription/i })).toBeInTheDocument();
     expect(screen.getByLabelText('Nom')).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/mot de passe/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^mot de passe$/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/confirmer le mot de passe/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /s'inscrire/i })).toBeInTheDocument();
   });
 
@@ -55,19 +56,21 @@ describe('Register', () => {
     renderRegister();
     fireEvent.change(screen.getByLabelText('Nom'), { target: { value: 'Jean Dupont' } });
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'jean@example.com' } });
-    fireEvent.change(screen.getByLabelText(/mot de passe/i), { target: { value: 'secret123' } });
+    fireEvent.change(screen.getByLabelText(/^mot de passe$/i), { target: { value: 'secret123' } });
+    fireEvent.change(screen.getByLabelText(/confirmer le mot de passe/i), { target: { value: 'secret123' } });
     fireEvent.submit(screen.getByRole('button', { name: /s'inscrire/i }).closest('form')!);
     expect(clearErrorMock).toHaveBeenCalled();
   });
 
-  it('appelle register avec nom, email et mot de passe au submit', async () => {
+  it('appelle register avec nom, email, mot de passe et confirmation au submit', async () => {
     registerMock.mockResolvedValue(undefined);
     renderRegister();
     fireEvent.change(screen.getByLabelText('Nom'), { target: { value: 'Marie Martin' } });
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'marie@test.com' } });
-    fireEvent.change(screen.getByLabelText(/mot de passe/i), { target: { value: 'pass' } });
+    fireEvent.change(screen.getByLabelText(/^mot de passe$/i), { target: { value: 'pass12345' } });
+    fireEvent.change(screen.getByLabelText(/confirmer le mot de passe/i), { target: { value: 'pass12345' } });
     fireEvent.submit(screen.getByRole('button', { name: /s'inscrire/i }).closest('form')!);
-    expect(registerMock).toHaveBeenCalledWith('Marie Martin', 'marie@test.com', 'pass');
+    expect(registerMock).toHaveBeenCalledWith('Marie Martin', 'marie@test.com', 'pass12345', 'pass12345');
   });
 
   it('redirige vers /dashboard après inscription réussie', async () => {
@@ -75,7 +78,8 @@ describe('Register', () => {
     renderRegister();
     fireEvent.change(screen.getByLabelText('Nom'), { target: { value: 'A' } });
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'a@a.com' } });
-    fireEvent.change(screen.getByLabelText(/mot de passe/i), { target: { value: 'p' } });
+    fireEvent.change(screen.getByLabelText(/^mot de passe$/i), { target: { value: 'password' } });
+    fireEvent.change(screen.getByLabelText(/confirmer le mot de passe/i), { target: { value: 'password' } });
     fireEvent.submit(screen.getByRole('button', { name: /s'inscrire/i }).closest('form')!);
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true });

@@ -4,6 +4,7 @@ namespace ArchitectureCible\Presentation\Http\Controllers\Api;
 
 use ArchitectureCible\Application\Ports\AuthServiceInterface;
 use ArchitectureCible\Presentation\Http\Requests\LoginRequest;
+use ArchitectureCible\Presentation\Http\Requests\RegisterRequest;
 use ArchitectureCible\Presentation\Http\Resources\UserResource;
 use Illuminate\Http\JsonResponse;
 
@@ -12,6 +13,20 @@ class AuthController
     public function __construct(
         private AuthServiceInterface $authService
     ) {}
+
+    public function register(RegisterRequest $request): JsonResponse
+    {
+        $result = $this->authService->register(
+            $request->validated('name'),
+            $request->validated('email'),
+            $request->validated('password')
+        );
+
+        return response()->json([
+            'token' => $result['token'],
+            'user' => new UserResource($result['user']),
+        ], 201);
+    }
 
     public function login(LoginRequest $request): JsonResponse
     {
