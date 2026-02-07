@@ -5,21 +5,34 @@
          colors="true"
 >
     <testsuites>
+<<<<<<< HEAD
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
         </testsuite>
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
+=======
+        <testsuite name="Api">
+            <directory>tests/Feature/Api</directory>
+>>>>>>> a8db11e320cb4c920879e8c7d0a67f63e2dd730b
         </testsuite>
     </testsuites>
     <source>
         <include>
             <directory>app</directory>
+<<<<<<< HEAD
+=======
+            <directory>src</directory>
+>>>>>>> a8db11e320cb4c920879e8c7d0a67f63e2dd730b
         </include>
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
+<<<<<<< HEAD
         <env name="APP_KEY" value="base64:2fl+Ktvk6xkw6yQEfO2U4TfPZJNLPEWpZqjPB4bTj2M="/>
+=======
+        <env name="APP_KEY" value="base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="/>
+>>>>>>> a8db11e320cb4c920879e8c7d0a67f63e2dd730b
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array"/>
