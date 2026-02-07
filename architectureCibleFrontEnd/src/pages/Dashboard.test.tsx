@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import type { ReactNode } from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import { Dashboard } from './Dashboard';
 import { useAuthStore } from '@/stores/authStore';
 import { createQueryWrapper } from '@/test/wrapper';
@@ -23,7 +25,10 @@ vi.mock('@/hooks/useNotes', () => ({
   useDeleteNote: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
 }));
 
-const wrapper = createQueryWrapper();
+const queryWrapper = createQueryWrapper();
+function wrapper({ children }: { children: ReactNode }) {
+  return queryWrapper({ children: <MemoryRouter>{children}</MemoryRouter> });
+}
 
 describe('Dashboard', () => {
   beforeEach(() => {

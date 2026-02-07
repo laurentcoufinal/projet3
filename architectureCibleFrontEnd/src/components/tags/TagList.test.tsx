@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import type { UseQueryResult } from '@tanstack/react-query';
+import type { Tag } from '@/types/tag';
 import { TagList } from './TagList';
 import { useAuthStore } from '@/stores/authStore';
 import { useTags } from '@/hooks/useTags';
@@ -27,7 +29,7 @@ describe('TagList', () => {
       data: undefined,
       isLoading: true,
       error: null,
-    } as any);
+    } as unknown as UseQueryResult<Tag[], Error>);
     renderTagList();
     expect(screen.getByText(/chargement des tags/i)).toBeInTheDocument();
   });
@@ -37,7 +39,7 @@ describe('TagList', () => {
       data: undefined,
       isLoading: false,
       error: new Error('Network error'),
-    } as any);
+    } as unknown as UseQueryResult<Tag[], Error>);
     renderTagList();
     expect(screen.getByRole('alert')).toHaveTextContent(/network error/i);
   });
@@ -47,7 +49,7 @@ describe('TagList', () => {
       data: [],
       isLoading: false,
       error: null,
-    } as any);
+    } as unknown as UseQueryResult<Tag[], Error>);
     renderTagList();
     expect(screen.getByText(/aucun tag/i)).toBeInTheDocument();
   });
@@ -60,7 +62,7 @@ describe('TagList', () => {
       ],
       isLoading: false,
       error: null,
-    } as any);
+    } as unknown as UseQueryResult<Tag[], Error>);
     renderTagList();
     expect(screen.getByRole('heading', { name: /tags/i })).toBeInTheDocument();
     expect(screen.getByText('Work')).toBeInTheDocument();

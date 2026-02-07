@@ -3,8 +3,8 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { NoteForm } from './NoteForm';
 import { useAuthStore } from '@/stores/authStore';
 import { useCreateNote } from '@/hooks/useNotes';
-import { useTags } from '@/hooks/useTags';
 import { createQueryWrapper } from '@/test/wrapper';
+import type { UseMutationResult } from '@tanstack/react-query';
 
 vi.mock('@/hooks/useNotes', () => ({
   useCreateNote: vi.fn(),
@@ -20,6 +20,8 @@ function renderNoteForm() {
   return render(<NoteForm />, { wrapper });
 }
 
+type CreateNoteMutation = UseMutationResult<unknown, Error, { text: string; tag_id: number }, unknown>;
+
 describe('NoteForm', () => {
   const mutateAsyncMock = vi.fn();
 
@@ -29,7 +31,7 @@ describe('NoteForm', () => {
       mutateAsync: mutateAsyncMock,
       isPending: false,
       error: null,
-    } as any);
+    } as CreateNoteMutation);
     useAuthStore.setState({ token: 'token' });
   });
 
@@ -77,7 +79,7 @@ describe('NoteForm', () => {
       mutateAsync: vi.fn(),
       isPending: false,
       error: new Error('Tag requis'),
-    } as any);
+    } as CreateNoteMutation);
     renderNoteForm();
     expect(screen.getByRole('alert')).toHaveTextContent('Tag requis');
   });

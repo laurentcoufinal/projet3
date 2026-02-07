@@ -15,9 +15,12 @@ export function useTags() {
 
 export function useCreateTag() {
   const queryClient = useQueryClient();
-  const token = useAuthStore((state) => state.token);
   return useMutation({
-    mutationFn: (name: string) => createTag(name, token!),
+    mutationFn: (name: string) => {
+      const token = useAuthStore.getState().token;
+      if (!token) return Promise.reject(new Error('Non authentifié'));
+      return createTag(name, token);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tagsQueryKey });
     },

@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useAuthStore, getStoredToken } from './authStore';
+import type { User } from '@/types/user';
 
-const mockLoginResponse = {
+const mockLoginResponse: { user: User; token: string } = {
   user: { id: 1, name: 'Test User', email: 'test@example.com' },
   token: 'fake-token-123',
 };
@@ -71,7 +72,7 @@ describe('authStore', () => {
 
   it('logout efface user, token et le localStorage', () => {
     useAuthStore.setState({
-      user: mockLoginResponse.user as any,
+      user: mockLoginResponse.user,
       token: mockLoginResponse.token,
     });
     localStorageMock['renote_token'] = 'fake-token-123';

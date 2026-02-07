@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import type { UseMutationResult } from '@tanstack/react-query';
+import type { Tag } from '@/types/tag';
 import { TagForm } from './TagForm';
 import { useAuthStore } from '@/stores/authStore';
 import { useCreateTag } from '@/hooks/useTags';
@@ -26,7 +28,7 @@ describe('TagForm', () => {
       mutateAsync: mutateAsyncMock,
       isPending: false,
       error: null,
-    } as any);
+    } as unknown as UseMutationResult<Tag, Error, string, unknown>);
     useAuthStore.setState({ token: 'token' });
   });
 
@@ -63,7 +65,7 @@ describe('TagForm', () => {
       mutateAsync: vi.fn(),
       isPending: false,
       error: new Error('Ce nom existe déjà'),
-    } as any);
+    } as unknown as UseMutationResult<Tag, Error, string, unknown>);
     renderTagForm();
     expect(screen.getByRole('alert')).toHaveTextContent('Ce nom existe déjà');
   });
@@ -73,7 +75,7 @@ describe('TagForm', () => {
       mutateAsync: vi.fn(),
       isPending: true,
       error: null,
-    } as any);
+    } as unknown as UseMutationResult<Tag, Error, string, unknown>);
     renderTagForm();
     expect(screen.getByRole('button', { name: /ajout/i })).toBeDisabled();
   });

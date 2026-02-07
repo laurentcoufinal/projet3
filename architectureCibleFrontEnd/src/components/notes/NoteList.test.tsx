@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
+import type { Note } from '@/types/note';
 import { NoteList } from './NoteList';
 import { useAuthStore } from '@/stores/authStore';
 import { useNotes, useDeleteNote } from '@/hooks/useNotes';
@@ -24,7 +26,7 @@ describe('NoteList', () => {
     vi.mocked(useDeleteNote).mockReturnValue({
       mutate: deleteMutateMock,
       isPending: false,
-    } as any);
+    } as unknown as UseMutationResult<void, Error, number, unknown>);
   });
 
   it('affiche un message de chargement quand isLoading', () => {
@@ -32,7 +34,7 @@ describe('NoteList', () => {
       data: undefined,
       isLoading: true,
       error: null,
-    } as any);
+    } as unknown as UseQueryResult<Note[], Error>);
     renderNoteList();
     expect(screen.getByText(/chargement des notes/i)).toBeInTheDocument();
   });
@@ -42,7 +44,7 @@ describe('NoteList', () => {
       data: undefined,
       isLoading: false,
       error: new Error('Network error'),
-    } as any);
+    } as unknown as UseQueryResult<Note[], Error>);
     renderNoteList();
     expect(screen.getByRole('alert')).toHaveTextContent(/network error/i);
   });
@@ -52,7 +54,7 @@ describe('NoteList', () => {
       data: [],
       isLoading: false,
       error: null,
-    } as any);
+    } as unknown as UseQueryResult<Note[], Error>);
     renderNoteList();
     expect(screen.getByText(/aucune note/i)).toBeInTheDocument();
   });
@@ -65,7 +67,7 @@ describe('NoteList', () => {
       ],
       isLoading: false,
       error: null,
-    } as any);
+    } as unknown as UseQueryResult<Note[], Error>);
     renderNoteList();
     expect(screen.getByRole('heading', { name: /vos notes/i })).toBeInTheDocument();
     expect(screen.getByText('Note one')).toBeInTheDocument();
@@ -81,7 +83,7 @@ describe('NoteList', () => {
       data: [{ id: 10, text: 'To delete', tag_id: 1, tag: { id: 1, name: 'Work' } }],
       isLoading: false,
       error: null,
-    } as any);
+    } as unknown as UseQueryResult<Note[], Error>);
     renderNoteList();
     fireEvent.click(screen.getByRole('button', { name: /supprimer la note 10/i }));
     expect(deleteMutateMock).toHaveBeenCalledWith(10);

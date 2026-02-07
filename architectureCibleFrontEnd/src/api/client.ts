@@ -1,23 +1,15 @@
+import type { LoginCredentials, LoginResponse, RegisterCredentials } from '@/types/user';
+import type { Tag } from '@/types/tag';
+import type { Note } from '@/types/note';
+
+export type { LoginCredentials, LoginResponse, RegisterCredentials } from '@/types/user';
+export type { Tag } from '@/types/tag';
+export type { Note } from '@/types/note';
+
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api';
 
 export function getApiBase(): string {
   return API_BASE;
-}
-
-export interface LoginCredentials {
-  email: string;
-  password: string;
-}
-
-export interface LoginResponse {
-  user: { id: number; name: string; email: string };
-  token: string;
-}
-
-export interface RegisterCredentials {
-  name: string;
-  email: string;
-  password: string;
 }
 
 export async function login(credentials: LoginCredentials): Promise<LoginResponse> {
@@ -44,11 +36,6 @@ export async function register(credentials: RegisterCredentials): Promise<LoginR
     throw new Error(data.message ?? `Register failed: ${res.status}`);
   }
   return res.json();
-}
-
-export interface Tag {
-  id: number;
-  name: string;
 }
 
 function authHeaders(token: string) {
@@ -85,13 +72,6 @@ export async function createTag(name: string, token: string): Promise<Tag> {
   }
   const data = await res.json();
   return data.data ?? data;
-}
-
-export interface Note {
-  id: number;
-  text: string;
-  tag_id: number;
-  tag?: Tag;
 }
 
 export async function getNotes(token: string | null): Promise<Note[]> {

@@ -15,10 +15,12 @@ export function useNotes() {
 
 export function useCreateNote() {
   const queryClient = useQueryClient();
-  const token = useAuthStore((state) => state.token);
   return useMutation({
-    mutationFn: ({ text, tag_id }: { text: string; tag_id: number }) =>
-      createNote(text, tag_id, token!),
+    mutationFn: ({ text, tag_id }: { text: string; tag_id: number }) => {
+      const token = useAuthStore.getState().token;
+      if (!token) return Promise.reject(new Error('Non authentifié'));
+      return createNote(text, tag_id, token);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: notesQueryKey });
     },
@@ -27,9 +29,12 @@ export function useCreateNote() {
 
 export function useDeleteNote() {
   const queryClient = useQueryClient();
-  const token = useAuthStore((state) => state.token);
   return useMutation({
-    mutationFn: (id: number) => deleteNote(id, token!),
+    mutationFn: (id: number) => {
+      const token = useAuthStore.getState().token;
+      if (!token) return Promise.reject(new Error('Non authentifié'));
+      return deleteNote(id, token);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: notesQueryKey });
     },
