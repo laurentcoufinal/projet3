@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
-use App\Http\Controllers\NoteController;
 
 Route::get('/', function () {
     return view('welcome');

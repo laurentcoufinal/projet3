@@ -17,7 +17,7 @@ class UpdateNoteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'text' => ['sometimes', 'string', 'nullable'],
+            'text' => ['sometimes', 'string', 'nullable', 'max:65535'],
             'tag_id' => ['sometimes', 'integer', 'exists:tags,id', 'nullable'],
         ];
     }

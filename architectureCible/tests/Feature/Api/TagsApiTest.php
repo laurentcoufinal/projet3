@@ -107,3 +107,54 @@ test('tags are global so user sees tag they do not use in any note', function ()
     $names = collect($response->json('data'))->pluck('name');
     $this->assertTrue($names->contains('Tag non utilisé'), 'Tags are global: user must see tag they do not use.');
 });
+
+test('authenticated user with no tags gets empty list and message', function () {
+    $user = User::factory()->create();
+
+    $loginResponse = $this->postJson('/api/auth/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+    $loginResponse->assertStatus(200);
+    $token = $loginResponse->json('token');
+
+    $response = $this->withToken($token)->getJson('/api/tags');
+
+    $response->assertStatus(200)
+        ->assertJsonPath('data', [])
+        ->assertJsonPath('message', 'Aucun tag.');
+});
+
+test('create tag without name returns 422', function () {
+    $user = User::factory()->create();
+
+    $loginResponse = $this->postJson('/api/auth/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+    $loginResponse->assertStatus(200);
+    $token = $loginResponse->json('token');
+
+    $response = $this->withToken($token)->postJson('/api/tags', []);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['name']);
+});
+
+test('create tag with empty name returns 422', function () {
+    $user = User::factory()->create();
+
+    $loginResponse = $this->postJson('/api/auth/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+    $loginResponse->assertStatus(200);
+    $token = $loginResponse->json('token');
+
+    $response = $this->withToken($token)->postJson('/api/tags', [
+        'name' => '',
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['name']);
+});
